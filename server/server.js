@@ -3,6 +3,7 @@ const morgan = require("morgan");
 const express = require("express");
 
 const app = express();
+const db = require("./db");
 
 const port = process.env.PORT || 3001;
 
@@ -13,12 +14,13 @@ app.use(morgan('dev'))
 app.use(express.json());
 
 // Get specific employee
-app.get('/api/employees/:id', (req, res) => {
+app.get('/api/employees/:id', async (req, res) => {
+  const employeeList = await db.query('SELECT * FROM employees');
+  
   res.status(200).json({
     status: "success",
     data: {
-      id: req.params.id,
-      salary: 100000
+      employeeList: employeeList.rows
     },
     message: `Got Employee ${req.params.id}}`
   });
