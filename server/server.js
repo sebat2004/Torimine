@@ -15,48 +15,86 @@ app.use(express.json());
 
 // Get specific employee
 app.get('/api/employees/:id', async (req, res) => {
-  const employeeList = await db.query('SELECT * FROM employees');
-  
-  res.status(200).json({
-    status: "success",
-    data: {
-      employeeList: employeeList.rows
-    },
-    message: `Got Employee ${req.params.id}}`
-  });
+	try {
+		const results = await db.query("SELECT * FROM employees WHERE id = $1", [req.params.id]);
+		res.status(200).json({
+			status: "success",
+			results: results.rows.length,
+			data: {
+				employee: results.rows
+			},
+			message: `Got employee #${req.params.id}`});
+	} catch (err) {
+		console.error(err.message);
+	}
 });
 
 // Get all employees
-app.get('/api/employees/', (req, res) => {
-  res.json({
-    status: "success",
-    message: "Got All Employees"
-  });
+app.get('/api/employees/', async (req, res) => {
+	try {
+		const results = await db.query('SELECT * FROM employees');
+		res.status(200).json({
+		status: "success",
+		results: results.rows.length,
+		data: {
+			employees: results.rows
+		},
+		message: "Got All Employees"
+		});
+	} catch (err) {
+		res.status(500).json({message: err.message})
+	}
 });
 
 // Create new employee
-app.post('/api/employees/', (req, res) => {
-  const body = req.body;
-  console.log(body);
-  res.status(201).json({
-    status: "success",
-    message: `Created new employee under id #${body.id}`
-  });
+app.post('/api/employees/', async (req, res) => {
+	try {
+		const results = await db.query('INSERT INTO employees (address, name, email, phone, salary, vacation_days) values ($1, $2, $3, $4, $5, $6) returning *', 
+		[req.body.address, req.body.name, req.body.email, req.body.phone, req.body.salary, req.body.vacation_days]);
+
+		res.status(201).json({
+			status: "success",
+			results: results.length,
+			data: {
+			employees: results.rows.name
+			},
+			message: "Got All Employees"
+		});
+		} catch (err) {
+			res.status(500).json({message: err.message})
+		}
 });
 
 // Update employee
-app.patch('/api/employees/:id', (req, res) => {
-  const body = req.body;
-  console.log(body);
-  res.status(200).json({
-    status: "success",
-    message: `Updated employee #${req.params.id}`
-  });
+app.put('/api/employees/:id', async (req, res) => {
+	try {
+		const results = await db.query("UPDATE employees SET address = $1, name = $2, email = $3, phone = $4, salary = $5, vacation_days = $6 WHERE id = $7 returning *", 
+		[req.body.address, req.body.name, req.body.email, req.body.phone, req.body.salary, req.body.vacation_days, req.params.id]);
+		console.log(results);
+	
+		res.status(200).json({
+			status: "success",
+			data: {
+				employee: results.rows
+			},
+			message: `Updated employee #${req.params.id}`
+		});
+	} catch (err) {
+		res.status(400).json({message: err.message})
+	}
 });
 
 // Delete employee
-app.delete('/api/employees/:id', (req, res) => {
-  res.status(204)
+app.delete('/api/employees/:id', async (req, res) => {
+	try {
+		const results = await db.query("DELETE FROM employees WHERE id = $1 returning *", [req.params.id]);
+
+		res.status(204).json({
+			status: "success",
+		});
+	} catch (err) {
+		res.status(500).json({message: err.message})
+	}
 });
 
 app.listen(port, () => {
