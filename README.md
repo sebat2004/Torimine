@@ -1,6 +1,6 @@
-<h1 align="center">Employee Management Application</h1>
+<h1 align="center">Torimine</h1>
 
-<p>The employee management app is a web application that provides a secure way for companies to administer and view their employee schedules and information. Employers can assign projects, change schedules, and perform CRUD operations on employees as they see fit.</p>
+<p align="center">Torimine is an employee monitoring and management web application that provides a secure way for companies to administer and view their employee schedules and information. Managers can change and view the information of the employees that they are assigned. Non-managers can view their upcoming tasks and schedules</p>
 
 <h2 align="center">Built With</h2>
 
