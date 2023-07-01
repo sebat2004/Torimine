@@ -1,0 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Libre+Bodoni:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caprasimo&family=Libre+Bodoni:wght@700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .nav-item-container {
+        @apply flex gap-2 cursor-pointer p-2 rounded-md hover:scale-[1.08] hover:rounded-xl duration-200 hover:bg-zinc-800
+    }
+    .nav-item-text {
+        @apply duration-75 text-base font-normal text-zinc-300
+    }
+    .logo {
+        font: 700 1.5rem 'Libre Bodoni', serif;
+    }
+} 

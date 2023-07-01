@@ -2,3 +2,4 @@ server/node_modules
 server/.env
 server/db/db.sql
 old_client
+.DS_Store
