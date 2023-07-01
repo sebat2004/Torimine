@@ -10,7 +10,7 @@
         @apply flex gap-2 cursor-pointer p-2 rounded-md hover:scale-[1.08] hover:rounded-xl duration-200 hover:bg-zinc-800
     }
     .nav-item-text {
-        @apply duration-75 text-base font-normal text-zinc-300
+        @apply pl-[6px] duration-75 text-base font-normal text-zinc-300
     }
     .logo {
         font: 700 1.5rem 'Libre Bodoni', serif;

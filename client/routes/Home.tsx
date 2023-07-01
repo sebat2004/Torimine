@@ -2,7 +2,12 @@ import Navbar from '../src/components/Navbar'
 
 const Home = () => {
   return (
-    <Navbar />
+    <>
+      <div className="flex">
+        <Navbar />
+      </div>
+    </>
+    
   )
 }
 
