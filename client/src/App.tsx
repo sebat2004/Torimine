@@ -2,14 +2,15 @@ import './index.css'
 import { Routes, Route } from 'react-router-dom'
 import Home from '../routes/Home'
 import Login from '../routes/Login'
+import Register from '../routes/Register'
 import { createContext, useState, Dispatch, SetStateAction } from 'react'
 
-interface NavbarContext {
+interface SidebarContext {
   isOpen: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-export const NavbarContext = createContext<NavbarContext>({
+export const SidebarContext = createContext<SidebarContext>({
   isOpen: true,
   setOpen: () => {},
 });
@@ -20,12 +21,13 @@ function App() {
 
   return (
     <>
-    <NavbarContext.Provider value={{isOpen, setOpen}}>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-      </Routes>
-    </NavbarContext.Provider>
+    <SidebarContext.Provider value={{isOpen, setOpen}}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+        </Routes>
+    </SidebarContext.Provider>
     </>
   )
 }
