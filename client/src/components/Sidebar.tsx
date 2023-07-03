@@ -14,14 +14,14 @@ const Sidebar = () => {
   return (
     <>
     <div className="flex">
-      <div className={`flex px-6 flex-col gap-5 pl-6 h-screen pt-8 bg-zinc-900  ${isOpen ? "w-[194px]" : "w-[90px]"} duration-150`}>
+      <div className={`flex px-6 flex-col gap-5 pl-6 h-screen pt-8 bg-zinc-900  ${isOpen ? "w-[194px]" : "w-[88px]"} duration-150`}>
           <div className={`flex pl-2 rounded-md w-min duration-200 cursor-pointer ${isOpen ? "self-end" : "self-end pr-[10px]"}`}>
             <Link to='/'>
               <h1 className={`logo self-start pr-7 hover:scale-110 duration-150 text-xl ${isOpen ? "scale-100" : "scale-0"}`}>Torimine</h1>
             </Link>
             <RxHamburgerMenu className={`text-2xl duration-150 hover:scale-125 ${isOpen && "rotate-180"}`} onClick={() => setOpen(!isOpen)} />
           </div>
-          <hr className="h-px my-3 dark:bg-zinc-600 light:bg-gray-200 border-0 m-[-23px]"></hr>
+          <hr className="h-px my-1 bg-zinc-600 border-0 mx-[-23px]"></hr>
           <Link to={"/"} state={isOpen}>
             <div className={`nav-item-container`} >
               <div className="pl-[4px] h-max self-center">

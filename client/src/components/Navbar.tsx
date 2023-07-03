@@ -2,12 +2,12 @@ import { Link } from 'react-router-dom'
 
 const Navbar = () => {
     return (
-    <div className='flex py-5 px-10 bg-zinc-900 w-screen'>
-        
+    <div className='flex py-3 px-10 bg-zinc-900 w-screen'>
         <div className='flex hover:scale-110 duration-150'>
             <Link to='/'>
-                <div className="pt-[8px] logo">
-                    <h1>Torimine</h1>
+                <div className="flex pt-[8px] logo">
+                    <h1>Tori</h1>
+                    <h1>mine</h1>
                 </div>
             </Link>
         </div>

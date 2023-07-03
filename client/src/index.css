@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Libre+Bodoni:wght@700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Caprasimo&family=Libre+Bodoni:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -14,5 +15,8 @@
     }
     .logo {
         font: 700 1.5rem 'Libre Bodoni', serif;
+    }
+    .header {
+        font: 600 1.5rem 'Poppins', serif;
     }
 } 

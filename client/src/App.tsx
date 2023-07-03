@@ -1,6 +1,6 @@
 import './index.css'
 import { Routes, Route } from 'react-router-dom'
-import Home from '../routes/Home'
+import Index from '../routes/Index'
 import Login from '../routes/Login'
 import Register from '../routes/Register'
 import { createContext, useState, Dispatch, SetStateAction } from 'react'
@@ -23,7 +23,7 @@ function App() {
     <>
     <SidebarContext.Provider value={{isOpen, setOpen}}>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Index />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
         </Routes>
