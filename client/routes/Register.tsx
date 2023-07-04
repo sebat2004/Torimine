@@ -1,10 +1,11 @@
 import Navbar from "../src/components/Navbar"
+import RegisterForm from "../src/components/RegisterForm"
 
 const Register = () => {
   return (
     <>
         <Navbar />
-        <h1>Hi</h1>
+        <RegisterForm />
     </>
   )
 }
