@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom'
 import Index from '../routes/Index'
 import Login from '../routes/Login'
 import Register from '../routes/Register'
+import Workspace from '../routes/Workspace'
 import { createContext, useState, Dispatch, SetStateAction } from 'react'
 
 interface SidebarContext {
@@ -21,13 +22,14 @@ function App() {
 
   return (
     <>
-    <SidebarContext.Provider value={{isOpen, setOpen}}>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-        </Routes>
-    </SidebarContext.Provider>
+      <SidebarContext.Provider value={{isOpen, setOpen}}>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/workspace" element={<Workspace />} />
+          </Routes>
+      </SidebarContext.Provider>
     </>
   )
 }

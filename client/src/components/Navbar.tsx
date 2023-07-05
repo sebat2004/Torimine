@@ -12,11 +12,6 @@ const Navbar = () => {
             </Link>
         </div>
         <div className='flex ml-auto pr-2 gap-7'>
-            <Link to='/about'>
-            <div className="nav-item-container px-2">
-                <h1 className='text-lg'>About</h1>
-            </div>
-            </Link>
             <Link to='/register'>
                 <div className="nav-item-container px-2">
                     <h1 className='text-lg'>Register</h1>

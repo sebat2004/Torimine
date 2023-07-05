@@ -1,11 +1,11 @@
-import Sidebar from "../src/components/Sidebar"
+import LoginForm from "../src/components/LoginForm"
+import Navbar from "../src/components/Navbar"
 
 const Login = () => {
   return (
     <>
-      <div className="flex">
-        <Sidebar />
-      </div>
+      <Navbar />
+      <LoginForm />
     </>
   )
 }
