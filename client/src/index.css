@@ -8,13 +8,14 @@
 
 @layer components {
     .nav-item-container {
-        @apply flex gap-2 pl-1 cursor-pointer p-2 rounded-md hover:scale-[1.08] hover:rounded-xl duration-200 hover:bg-zinc-800
+        @apply flex gap-2 pl-1 cursor-pointer p-2 rounded-md hover:scale-[1.08] hover:rounded-xl duration-200 hover:bg-gray-300
     }
 \    .nav-item-text {
-        @apply pl-[6px] duration-75 text-base font-normal text-zinc-300
+        @apply pl-[6px] duration-75 text-base font-normal text-black
     }
     .logo {
         font: 700 1.5rem 'Libre Bodoni', serif;
+        color: black
     }
     .header {
         font: 600 1.5rem 'Poppins', serif;
