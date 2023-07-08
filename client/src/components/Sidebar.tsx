@@ -13,15 +13,14 @@ const Sidebar = () => {
 
   return (
     <>
-    <div className="flex">
-      <div className={`flex px-6 flex-col gap-5 pl-6 h-screen pt-8  ${isOpen ? "w-[194px]" : "w-[88px]"} duration-150 border-r-[1px] bg-gray-100`}>
-          <div className={`flex pl-2 rounded-md w-min duration-200 cursor-pointer ${isOpen ? "self-end" : "self-end pr-[10px]"}`}>
-            <Link to='/' className={` mr-auto`}>
+      <div className={`flex shadow-md px-6 flex-col gap-5 pl-6 h-screen pt-8  ${isOpen ? "w-[194px]" : "w-[88px]"} duration-150 border-r-[1px] bg-[#e6e8e8]`}>
+          <div className={`flex rounded-md w-min duration-200 ${isOpen ? "self-end" : "self-end"}`}>
+            <Link to='/' className={`mr-6 cursor-pointer`}>
               <h1 className={`logo hover:scale-110 duration-150 text-xl ${isOpen ? "scale-100" : "scale-0"}`}>Torimine</h1>
             </Link>
-            <RxHamburgerMenu className={`text-2xl duration-150 hover:scale-125 ${isOpen && "rotate-180"}`} onClick={() => setOpen(!isOpen)} />
+            <RxHamburgerMenu className={`mr-2 text-2xl cursor-pointer duration-150 hover:scale-125 ${isOpen && "rotate-180"}`} onClick={() => setOpen(!isOpen)} />
           </div>
-          <hr className="h-px my-1 bg-zinc-300 border-0 mx-[-23px]"></hr>
+          <hr className="h-px my-2 bg-zinc-400 mx-[-25px]"></hr>
           <Link to={"/"} state={isOpen}>
             <div className={`nav-item-container`} >
               <div className="pl-[4px] h-max self-center">
@@ -54,7 +53,7 @@ const Sidebar = () => {
               <h1 className={`nav-item-text ${isOpen ? "scale-100" : "scale-0"}`}>Schedule</h1>
             </div>
           </Link>
-          <hr className="h-px my-3 bg-zinc-300 border-0 mx-[-23px] mt-auto"></hr>
+          <hr className="h-px my-3 bg-zinc-400 border-0 mx-[-25px] mt-auto"></hr>
           <Link to="/account" state={isOpen}>
             <div className={`nav-item-container mb-7`} >
               <div className="pl-[4px] h-max self-center">
@@ -64,7 +63,6 @@ const Sidebar = () => {
             </div>
           </Link>
       </div>
-    </div>
     </>
   )
 }

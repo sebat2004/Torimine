@@ -5,7 +5,15 @@ module.exports = {
   plugins: [require("daisyui")],
   daisyui: {
         themes: [
-          'light'
+          {
+            light: {
+              "primary": "#f6f5f3",
+              "secondary": "#f6d860",
+              "accent": "#37cdbe",
+              "neutral": "#787d9b",
+              "base-100": "#e0e1e0",
+            },
+          }
         ],
         base: true, // applies background color and foreground color for root element by default
         styled: true, // include daisyUI colors and design decisions for all components
