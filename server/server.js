@@ -1,6 +1,7 @@
 require("dotenv").config();
 const morgan = require("morgan");
 const express = require("express");
+const cors = require("cors") // Cross Origin Resource Sharing
 
 const app = express();
 const db = require("./db");
@@ -9,9 +10,35 @@ const port = process.env.PORT || 3001;
 
 // Logging
 app.use(morgan('dev'))
+app.use(cors())
 
 // Attach body to request
 app.use(express.json());
+
+// Login route
+app.post('/api/login', async (req, res) => {
+	try {
+		const results = await db.query("SELECT * FROM users WHERE username = $1", [req.body.username]);
+		if (results.rows.length > 0) {
+			if (results.rows[0].password === req.body.password) {
+				res.status(200).json({
+					status: "success",
+					data: {
+						user: results.rows[0]
+					},
+					message: `Logged in as ${req.body.username}`
+				});
+			} else {
+				res.status(401).json({message: "Wrong password"});
+			}
+		} else {
+			res.status(404).json({message: "User not found"});
+		}
+	} catch (err) {
+		res.status(500).json({message: err.message})
+	}
+});
+
 
 // Get specific employee
 app.get('/api/employees/:id', async (req, res) => {
