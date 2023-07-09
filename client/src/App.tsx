@@ -18,7 +18,7 @@ export const SidebarContext = createContext<SidebarContext>({
 
 function App() {
 
-  const [isOpen, setOpen] = useState(true);
+  const [isOpen, setOpen] = useState<boolean>(true);
 
   return (
     <>

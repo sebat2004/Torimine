@@ -14,8 +14,8 @@ const RegisterForm = () => {
         const data = {
         name: inputValues?.name,
         email: inputValues?.email,
-        phone: inputValues?.phone,
-        income: inputValues?.name
+        password: inputValues?.password,
+        confirm_password: inputValues?.confirm_password
         }
         console.log(data)
     }
@@ -33,7 +33,7 @@ const RegisterForm = () => {
                     <form className="flex flex-col gap-4">
                         <div className="flex flex-col gap-1">
                             <label className="text-left">Username</label>
-                            <input className="input bg-[#e0e1e0] border-opacity-10" name="name" value={inputValues?.name || 'test'} type="text" onChange={handleInputChange} />
+                            <input className="input bg-[#e0e1e0] border-opacity-10" name="name" value={inputValues?.name || ''} type="text" onChange={handleInputChange} />
                         </div>
                         <div className="flex flex-col gap-1">
                             <label className="text-left">Email</label>

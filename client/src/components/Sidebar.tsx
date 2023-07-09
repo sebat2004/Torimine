@@ -9,7 +9,7 @@ import { SidebarContext } from "../App";
 
 const Sidebar = () => {
 
-  const {isOpen, setOpen} = useContext(SidebarContext)
+  const {isOpen, setOpen}: {} = useContext(SidebarContext)
 
   return (
     <>
@@ -20,7 +20,7 @@ const Sidebar = () => {
             </Link>
             <RxHamburgerMenu className={`mr-2 text-2xl cursor-pointer duration-150 hover:scale-125 ${isOpen && "rotate-180"}`} onClick={() => setOpen(!isOpen)} />
           </div>
-          <hr className="h-px my-2 bg-zinc-400 mx-[-25px]"></hr>
+          <hr className="h-px my-1 bg-zinc-400 border-0 mx-[-23px]"></hr>
           <Link to={"/"} state={isOpen}>
             <div className={`nav-item-container`} >
               <div className="pl-[4px] h-max self-center">
