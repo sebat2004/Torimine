@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
 import { useState } from "react"
-import { AiOutlineCheckCircle, AiOutlineCloseCircle } from "react-icons/ai"
+import { AiOutlineCheckCircle, AiOutlineCloseCircle, AiOutlineLoading } from "react-icons/ai"
 
 const LoginForm = () => {
     const openInNewTab = (url: string) => {
@@ -9,6 +9,7 @@ const LoginForm = () => {
         }
 
     const [inputValues, setInputValues] = useState<{ [x: string]: string }>()
+    const [errorMessage, setErrorMessage] = useState<any>()
 
     // Validates form input values, password must be at least 8 characters long, only letters and numbers
     // Username must be at least 4 characters long and contain only letters and numbers
@@ -52,12 +53,13 @@ const LoginForm = () => {
     }
 
     const handleFormSubmit = async (e: React.MouseEvent<HTMLElement>) => {
+        setErrorMessage(<AiOutlineLoading className="animate-spin text-3xl" />)
+
         e.preventDefault()
         const data = {
         name: inputValues?.name,
         password: inputValues?.password,
         }
-        console.log(data)
         // sends a request to the localhost:3000 server to fetch the response from the login api call for the user
         const response = await fetch('http://localhost:3000/api/login', {
             method: 'POST',
@@ -68,12 +70,15 @@ const LoginForm = () => {
             })
             .then(res => res.json())
             .then(data => {
-                console.log(data)
                 return data
-            }
-        )
+            });
+        if (response.status === 'success') {
+            setTimeout(() => { setErrorMessage(<h1 className="text-green-500">{response.message}</h1>) }, 1500)
+            setTimeout(() => { openInNewTab('http://localhost:5173/workspace') }, 2000)
+        } else {
+            setTimeout(() => { setErrorMessage(<h1 className="text-red-500">{response.message}</h1>) }, 1500)
+        }
     }
-
     const handleInputChange = (e: React.FormEvent<HTMLInputElement>) => {
         const { name, value } = e.currentTarget
         setInputValues(prevState => ({ ...prevState, [name]: value }))
@@ -106,6 +111,7 @@ const LoginForm = () => {
                             <h1 className="text-neutral font-bold" onClick={() => openInNewTab("http://localhost:5173/")}>Click here</h1>
                         </Link>
                         <h1 className="shadow-lg btn-md btn btn-neutral w-[400px]" onClick={handleFormSubmit}>Login</h1>
+                        {errorMessage}
                     </div>
                 </form>
             </div>

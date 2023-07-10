@@ -18,7 +18,7 @@ app.use(express.json());
 // Login route
 app.post('/api/login', async (req, res) => {
 	try {
-		const results = await db.query("SELECT * FROM users WHERE username = $1", [req.body.username]);
+		const results = await db.query("SELECT * FROM users WHERE username = $1", [req.body.name]);
 		if (results.rows.length > 0) {
 			if (results.rows[0].password === req.body.password) {
 				res.status(200).json({
@@ -26,7 +26,7 @@ app.post('/api/login', async (req, res) => {
 					data: {
 						user: results.rows[0]
 					},
-					message: `Logged in as ${req.body.username}`
+					message: `Logged in as ${req.body.name}!`
 				});
 			} else {
 				res.status(401).json({message: "Wrong password"});
