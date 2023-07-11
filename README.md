@@ -1,6 +1,6 @@
-<h1 align="center">Torimine</h1>
+<h1 align="center">WorkPulse</h1>
 
-<p align="center">Torimine is an employee monitoring and management web application that provides a secure way for companies to administer and view their employee schedules and information. Managers can change and view the information of the employees that they are assigned. Non-managers can view their upcoming tasks and schedules</p>
+<p align="center">WorkPulse is an employee monitoring and management web application that provides a secure way for companies to administer and view their employee schedules and information. Managers can change and view the information of the employees that they are assigned. Non-managers can view their upcoming tasks and schedules</p>
 
 <h2 align="center">Built With</h2>
 
