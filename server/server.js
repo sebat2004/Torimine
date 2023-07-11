@@ -39,6 +39,28 @@ app.post('/api/login', async (req, res) => {
 	}
 });
 
+// Register route
+app.post('/api/register', async (req, res) => {
+	try {
+		const results = await db.query("SELECT * FROM users WHERE username = $1", [req.body.name]);
+		if (results.rows.length > 0) {
+			res.status(409).json({message: "Username already exists"});
+		} else {
+			const results = await db.query('INSERT INTO users (username, password, email) values ($1, $2, $3) returning *',
+			[req.body.name, req.body.password, req.body.email]);
+			res.status(201).json({
+				status: "success",
+				data: {
+					user: results.rows[0]
+				},
+				message: `Registered as ${req.body.name}!`
+			});
+		}
+	} catch (err) {
+		res.status(500).json({message: err.message})
+	}
+});
+
 
 // Get specific employee
 app.get('/api/employees/:id', async (req, res) => {
