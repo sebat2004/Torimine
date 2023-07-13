@@ -52,7 +52,7 @@ const RegisterForm = () => {
 
     // Function to set an icon for each input field, check for valid input, x for invalid input
     const setIcon = (inputName: string, inputValue: string) => {
-        if (inputName === 'name') {
+        if (inputName === 'username') {
             if (validateForm(inputName, inputValue)) {
                 setUsernameIcon(<AiOutlineCheckCircle className="text-green-500" />)
             } else {
@@ -91,7 +91,7 @@ const RegisterForm = () => {
         setErrorMessage(<AiOutlineLoading className="animate-spin text-3xl" />)
 
         // Checks if any of the inputs have invalid values
-        if (validateForm('name', inputValues?.name) === false) {
+        if (validateForm('name', inputValues?.username) === false) {
             setTimeout(() => { setErrorMessage(<h1 className="text-red-500">Invalid username</h1>) }, 1500)
             return
         } else if (validateForm('password', inputValues?.password) === false) {
