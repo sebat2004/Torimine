@@ -2,7 +2,7 @@ require("dotenv").config();
 const morgan = require("morgan");
 const express = require("express");
 const cors = require("cors") // Cross Origin Resource Sharing
-
+const session = require("express-session");
 const app = express();
 const db = require("./db");
 
@@ -12,13 +12,23 @@ const port = process.env.PORT || 3001;
 app.use(morgan('dev'))
 app.use(cors())
 
+// Session
+app.use(session({
+	secret: process.env.SESSION_SECRET,
+	resave: false,
+	saveUninitialized: false,
+	cookie: {
+		maxAge: 20000 // 1 day
+	}
+}));
+
 // Attach body to request
 app.use(express.json());
 
 // Login route
 app.post('/api/login', async (req, res) => {
 	try {
-		const results = await db.query("SELECT * FROM users WHERE username = $1", [req.body.name]);
+		const results = await db.query("SELECT * FROM users WHERE username = $1", [req.body.username]);
 		if (results.rows.length > 0) {
 			if (results.rows[0].password === req.body.password) {
 				res.status(200).json({
@@ -26,7 +36,7 @@ app.post('/api/login', async (req, res) => {
 					data: {
 						user: results.rows[0]
 					},
-					message: `Logged in as ${req.body.name}!`
+					message: `Logged in as ${req.body.username}!`
 				});
 			} else {
 				res.status(401).json({message: "Wrong password"});
@@ -42,18 +52,18 @@ app.post('/api/login', async (req, res) => {
 // Register route
 app.post('/api/register', async (req, res) => {
 	try {
-		const results = await db.query("SELECT * FROM users WHERE username = $1", [req.body.name]);
+		const results = await db.query("SELECT * FROM users WHERE username = $1", [req.body.username]);
 		if (results.rows.length > 0) {
 			res.status(409).json({message: "Username already exists"});
 		} else {
 			const results = await db.query('INSERT INTO users (username, password, email) values ($1, $2, $3) returning *',
-			[req.body.name, req.body.password, req.body.email]);
+			[req.body.username, req.body.password, req.body.email]);
 			res.status(201).json({
 				status: "success",
 				data: {
 					user: results.rows[0]
 				},
-				message: `Registered as ${req.body.name}!`
+				message: `User ${req.body.username} is registered!`
 			});
 		}
 	} catch (err) {

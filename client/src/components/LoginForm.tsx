@@ -16,7 +16,7 @@ const LoginForm = () => {
 
         e.preventDefault()
         const data = {
-        name: inputValues?.name,
+        username: inputValues?.username,
         password: inputValues?.password,
         }
         // sends a request to the localhost:3000 server to fetch the response from the login api call for the user
@@ -52,7 +52,7 @@ const LoginForm = () => {
                     <form className="flex flex-col gap-4">
                         <div className="flex flex-col gap-1">
                             <label className="text-left">Username</label>
-                            <input className="input bg-[#e0e1e0] border-opacity-10" type="text" name="name" onChange={handleInputChange} />
+                            <input className="input bg-[#e0e1e0] border-opacity-10" type="text" name="username" onChange={handleInputChange} />
                         </div>
                         <div className="flex flex-col gap-1">
                             <label className="text-left">Password</label>

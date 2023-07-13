@@ -10,7 +10,7 @@ const RegisterForm = () => {
     
     const [inputValues, setInputValues] = useState<{ [x: string]: string }>()
     const [errorMessage, setErrorMessage] = useState<any>()
-    const [usernameIcon, setUserNameIcon] = useState<JSX.Element>()
+    const [usernameIcon, setUsernameIcon] = useState<JSX.Element>()
     const [passwordIcon, setPasswordIcon] = useState<JSX.Element>()
     const [emailIcon, setEmailIcon] = useState<JSX.Element>()
     const [confirmPasswordIcon, setConfirmPasswordIcon] = useState<JSX.Element>()
@@ -21,7 +21,7 @@ const RegisterForm = () => {
     // Confirm password must match password and also fit the password constraints
     const validateForm = (inputName?: string, inputValue?: string) => {
         if (inputValue === '' || inputValue === undefined) return false
-        if (inputName === 'name') {
+        if (inputName === 'username') {
             if (inputValue?.length >= 4 && /^[a-zA-Z0-9]+$/.test(inputValue)) {
                 return true
             } else {
@@ -54,9 +54,9 @@ const RegisterForm = () => {
     const setIcon = (inputName: string, inputValue: string) => {
         if (inputName === 'name') {
             if (validateForm(inputName, inputValue)) {
-                setUserNameIcon(<AiOutlineCheckCircle className="text-green-500" />)
+                setUsernameIcon(<AiOutlineCheckCircle className="text-green-500" />)
             } else {
-                setUserNameIcon(<AiOutlineCloseCircle className="text-red-500" />)
+                setUsernameIcon(<AiOutlineCloseCircle className="text-red-500" />)
             }
         } else if (inputName === 'password') {
             if (validateForm(inputName, inputValue)) {
@@ -107,7 +107,7 @@ const RegisterForm = () => {
 
         e.preventDefault()
         const data = {
-        name: inputValues?.name,
+        username: inputValues?.username,
         email: inputValues?.email,
         password: inputValues?.password,
         confirm_password: inputValues?.confirm_password
@@ -150,7 +150,7 @@ const RegisterForm = () => {
                                 <label className="text-left">Username (4-24 characters, no symbols)</label>
                                 {usernameIcon}
                             </div>
-                            <input className="input bg-[#e0e1e0] border-opacity-10" name="name" value={inputValues?.name || ''} type="text" onChange={handleInputChange} />
+                            <input className="input bg-[#e0e1e0] border-opacity-10" name="username" value={inputValues?.username || ''} type="text" onChange={handleInputChange} />
                         </div>
                         <div className="flex flex-col gap-1">
                             <div className="flex gap-2 items-center">
