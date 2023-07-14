@@ -4,7 +4,10 @@ import Index from '../routes/Index'
 import Login from '../routes/Login'
 import Register from '../routes/Register'
 import Workspace from '../routes/Workspace'
+import Schedule from '../routes/Schedule'
 import { createContext, useState, Dispatch, SetStateAction } from 'react'
+import Dashboard from '../routes/Dashboard'
+import Account from '../routes/Account'
 
 interface SidebarContext {
   isOpen: boolean;
@@ -27,7 +30,11 @@ function App() {
             <Route path="/" element={<Index />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/workspace" element={<Workspace />} />
+            <Route path="/workspace" element={<Workspace />}>
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="schedule" element={<Schedule />} />
+              <Route path="account" element={<Account />} />
+            </Route>
           </Routes>
       </SidebarContext.Provider>
     </>

@@ -20,6 +20,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "static/index.tsx"],
+  "include": ["src", "static/index.tsx", "routes/Schedule.tsx", "routes/Dashboard.tsx", "routes/Account.tsx"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

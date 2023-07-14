@@ -109,13 +109,13 @@ app.get('/api/employees/', async (req, res) => {
 app.post('/api/employees/', async (req, res) => {
 	try {
 		const results = await db.query('INSERT INTO employees (address, name, email, phone, salary, vacation_days) values ($1, $2, $3, $4, $5, $6) returning *', 
-		[req.body.address, req.body.name, req.body.email, req.body.phone, req.body.salary, req.body.vacation_days]);
+		[req.body.address, req.body.username, req.body.email, req.body.phone, req.body.salary, req.body.vacation_days]);
 
 		res.status(201).json({
 			status: "success",
 			results: results.length,
 			data: {
-			employees: results.rows.name
+			employees: results.rows.username
 			},
 			message: "Got All Employees"
 		});

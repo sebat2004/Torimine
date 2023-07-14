@@ -113,29 +113,24 @@ const RegisterForm = () => {
         confirm_password: inputValues?.confirm_password
         }
 
+        // sends a request to the localhost:3000 server to fetch the response from the register api call for the user
         const response = await fetch('http://localhost:3000/api/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(data),
-            })
-            .then(res => res.json())
-            .then(data => {
-                return data
-            });
-            
-        // Updates the error message based on the response from the server
+
+        }).then(res => res.json())
+        .then(data => {
+            return data
+        })
+
         if (response.status === 'success') {
             setTimeout(() => { setErrorMessage(<h1 className="text-green-500">{response.message}</h1>) }, 1700)
-            setTimeout(() => setErrorMessage(<AiOutlineLoading className="animate-spin text-3xl" />), 2000)
-            setTimeout(() => { window.location.replace("http://localhost:5173/login")}, 3000)
+            setTimeout(() => { window.location.replace("http://localhost:5173/login") }, 4000)
         } else {
-            if (response.message === 'duplicate key value violates unique constraint "users_email_key"') {
-                setTimeout(() => { setErrorMessage(<h1 className="text-red-500">Email already registered</h1>) }, 1500)
-            } else {
-                setTimeout(() => { setErrorMessage(<h1 className="text-red-500">{response.message}</h1>) }, 1500)
-            }
+            setTimeout(() => { setErrorMessage(<h1 className="text-red-500">{response.message}</h1>) }, 1500)
         }
     }
 
