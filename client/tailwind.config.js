@@ -1,7 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   mode: 'jit',
-  content: ['./src/**/*.{js,ts,jsx,tsx, html}'],
+  content: ['./src/**/*.{js,ts,jsx,tsx, html}',
+            './routes/**/*.{js,ts,jsx,tsx, html}'],
   plugins: [require("daisyui")],
   daisyui: {
         themes: [
