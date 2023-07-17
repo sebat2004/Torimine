@@ -8,17 +8,21 @@ const db = require("./db");
 
 const port = process.env.PORT || 3001;
 
-// Logging
+// Logging middleware
 app.use(morgan('dev'))
-app.use(cors())
 
-// Session
+app.use(cors()) 
+
+// Session middleware
 app.use(session({
+	store: new (require('connect-pg-simple')(session))({
+		pool : db.pool
+	  }),
 	secret: process.env.SESSION_SECRET,
 	resave: false,
 	saveUninitialized: false,
 	cookie: {
-		maxAge: 20000 // 1 day
+		maxAge: 1000 * 40 // 40 seconds
 	}
 }));
 
