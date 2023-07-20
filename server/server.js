@@ -4,64 +4,78 @@ const express = require("express");
 const cors = require("cors") // Cross Origin Resource Sharing
 const session = require("express-session");
 const app = express();
-const db = require("./db");
+const db = require("./config/db");
+const passport = require("passport");	
+const passwordUtilities = require("./lib/passwordUtilities");
 
 const port = process.env.PORT || 3001;
 
 // Logging middleware
 app.use(morgan('dev'))
 
+// Attach body to request
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
+
 app.use(cors()) 
+
+sessionStore = new (require('connect-pg-simple')(session))({
+	pool : db.pool
+});
 
 // Session middleware
 app.use(session({
-	store: new (require('connect-pg-simple')(session))({
-		pool : db.pool
-	  }),
 	secret: process.env.SESSION_SECRET,
 	resave: false,
 	saveUninitialized: false,
+	store: sessionStore,
 	cookie: {
-		maxAge: 1000 * 40 // 40 seconds
+		maxAge: 1000 * 60 * 2 // 2 mins
 	}
 }));
 
-// Attach body to request
-app.use(express.json());
+// Passport middleware
+require('./config/passport');
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Login route
-app.post('/api/login', async (req, res) => {
-	try {
-		const results = await db.query("SELECT * FROM users WHERE username = $1", [req.body.username]);
-		if (results.rows.length > 0) {
-			if (results.rows[0].password === req.body.password) {
-				res.status(200).json({
-					status: "success",
-					data: {
-						user: results.rows[0]
-					},
-					message: `Logged in as ${req.body.username}!`
-				});
-			} else {
-				res.status(401).json({message: "Wrong password"});
-			}
-		} else {
-			res.status(404).json({message: "User not found"});
-		}
-	} catch (err) {
-		res.status(500).json({message: err.message})
+app.post('/api/login', passport.authenticate('local', { successRedirect: 'https://localhost:5173/workspace' }), (req, res) => {
+	res.status(200).json({message: "Invalid credentials"});
+});
+
+
+// Is authenticated route
+app.get('/api/isAuthenticated', (req, res) => {
+	if (req.isAuthenticated()) {
+		res.status(200).json({message: "Authenticated"});
+	} else {
+		res.status(401).json({message: "Not authenticated"});
 	}
+});
+
+// Logout route
+app.get('/api/logout', (req, res) => {
+	req.logout();
+	res.status(200).json({message: "Logged out"});
 });
 
 // Register route
 app.post('/api/register', async (req, res) => {
+	// Password encryption
+	const saltHash = passwordUtilities.genPassword(req.body.password);
+	const salt = saltHash.salt;
+	console.log(salt)
+	const hash = saltHash.hash;
+
 	try {
 		const results = await db.query("SELECT * FROM users WHERE username = $1", [req.body.username]);
 		if (results.rows.length > 0) {
 			res.status(409).json({message: "Username already exists"});
 		} else {
-			const results = await db.query('INSERT INTO users (username, password, email) values ($1, $2, $3) returning *',
-			[req.body.username, req.body.password, req.body.email]);
+			const results = await db.query('INSERT INTO users (username, email, hash, salt) values ($1, $2, $3, $4) returning *',
+			[req.body.username, req.body.email, hash, salt]);
 			res.status(201).json({
 				status: "success",
 				data: {
