@@ -5,8 +5,8 @@ const cors = require("cors") // Cross Origin Resource Sharing
 const session = require("express-session");
 const app = express();
 const db = require("./config/db");
-const passport = require("passport");	
 const passwordUtilities = require("./lib/passwordUtilities");
+const { urlencoded } = require("express");
 
 const port = process.env.PORT || 3001;
 
@@ -15,50 +15,57 @@ app.use(morgan('dev'))
 
 // Attach body to request
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(urlencoded({extended: true}))
 
-app.use(cors()) 
+// CORS middleware
+const corsOptions = {
+	origin: ["http://localhost:5173"],
+	credentials: true,
+  };
+
+app.use(cors(corsOptions));
+
 
 sessionStore = new (require('connect-pg-simple')(session))({
 	pool : db.pool
 });
 
 // Session middleware
+app.set('trust proxy', 1) // trust first proxy
 app.use(session({
 	secret: process.env.SESSION_SECRET,
 	resave: false,
 	saveUninitialized: false,
 	store: sessionStore,
 	cookie: {
-		maxAge: 1000 * 60 * 2 // 2 mins
+		maxAge: 1000 * 60 * 60 * 24 * 30 // 1 month
 	}
 }));
 
-// Passport middleware
-require('./config/passport');
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-// Login route
-app.post('/api/login', passport.authenticate('local', { successRedirect: 'https://localhost:5173/workspace' }), (req, res) => {
-	res.status(200).json({message: "Invalid credentials"});
-});
-
-
-// Is authenticated route
-app.get('/api/isAuthenticated', (req, res) => {
-	if (req.isAuthenticated()) {
-		res.status(200).json({message: "Authenticated"});
+// Login route with passport auth
+app.post('/api/login', async (req, res) => {
+	const password = req.body.password;
+	const username = req.body.username
+	if (req.session.user) {
+		res.status(200).json({message: "Already logged in", status: "success"});
 	} else {
-		res.status(401).json({message: "Not authenticated"});
+		const results = await db.query("SELECT * FROM users WHERE username = $1", [username]);
+		if (results.rows.length > 0) {
+			const user = results.rows[0];
+			const isValid = passwordUtilities.validatePassword(password, user.hash, user.salt);
+			if (isValid) {
+				req.session.user = user;
+				res.status(200).json({message: "Logged in", status: "success"});
+				console.log(req.session.user);
+				console.log(req.sessionID)
+			} else {
+				res.status(401).json({message: "Invalid password", status: "error"});
+			}
+		}
+		else {
+			res.status(401).json({message: "Invalid username", status: "error"});
+		}
 	}
-});
-
-// Logout route
-app.get('/api/logout', (req, res) => {
-	req.logout();
-	res.status(200).json({message: "Logged out"});
 });
 
 // Register route
@@ -89,6 +96,24 @@ app.post('/api/register', async (req, res) => {
 	}
 });
 
+// Logout route
+app.get('/api/logout', (req, res) => {
+	req.logout();
+	res.status(200).json({message: "Logged out"});
+});
+
+// Is authenticated route
+app.get('/api/authenticated', (req, res) => {
+	if (req.session.user) {
+		res.status(200).json({
+			message: "Authenticated",
+			status: "success",
+			user: req.session.user
+		});
+	} else {
+		res.status(401).json({message: "Not authenticated", status: "error"});
+	}
+});
 
 // Get specific employee
 app.get('/api/employees/:id', async (req, res) => {
