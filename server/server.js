@@ -25,13 +25,13 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-
 sessionStore = new (require('connect-pg-simple')(session))({
-	pool : db.pool
+	pool : db.pool,
+	createTableIfMissing: true
 });
 
 // Session middleware
-app.set('trust proxy', 1) // trust first proxy
+app.set('trust proxy', 1);
 app.use(session({
 	secret: process.env.SESSION_SECRET,
 	resave: false,
@@ -46,25 +46,19 @@ app.use(session({
 app.post('/api/login', async (req, res) => {
 	const password = req.body.password;
 	const username = req.body.username
-	if (req.session.user) {
-		res.status(200).json({message: "Already logged in", status: "success"});
-	} else {
-		const results = await db.query("SELECT * FROM users WHERE username = $1", [username]);
-		if (results.rows.length > 0) {
-			const user = results.rows[0];
-			const isValid = passwordUtilities.validatePassword(password, user.hash, user.salt);
-			if (isValid) {
-				req.session.user = user;
-				res.status(200).json({message: "Logged in", status: "success"});
-				console.log(req.session.user);
-				console.log(req.sessionID)
-			} else {
-				res.status(401).json({message: "Invalid password", status: "error"});
-			}
+	const results = await db.query("SELECT * FROM users WHERE username = $1", [username]);
+	if (results.rows.length > 0) {
+		const user = results.rows[0];
+		const isValid = passwordUtilities.validatePassword(password, user.hash, user.salt);
+		if (isValid) {
+			req.session.user = user;
+			res.status(200).json({message: "Logged in", status: "success"});
+		} else {
+			res.status(401).json({message: "Invalid password", status: "error"});
 		}
-		else {
-			res.status(401).json({message: "Invalid username", status: "error"});
-		}
+	}
+	else {
+		res.status(401).json({message: "Invalid username", status: "error"});
 	}
 });
 
@@ -73,7 +67,6 @@ app.post('/api/register', async (req, res) => {
 	// Password encryption
 	const saltHash = passwordUtilities.genPassword(req.body.password);
 	const salt = saltHash.salt;
-	console.log(salt)
 	const hash = saltHash.hash;
 
 	try {
@@ -98,98 +91,275 @@ app.post('/api/register', async (req, res) => {
 
 // Logout route
 app.get('/api/logout', (req, res) => {
-	req.logout();
+	req.session.destroy();
 	res.status(200).json({message: "Logged out"});
 });
 
 // Is authenticated route
 app.get('/api/authenticated', (req, res) => {
+	console.log(req.session.user);
 	if (req.session.user) {
 		res.status(200).json({
 			message: "Authenticated",
 			status: "success",
-			user: req.session.user
+			data: {
+				username: req.session.user.username
+			}
 		});
 	} else {
 		res.status(401).json({message: "Not authenticated", status: "error"});
 	}
 });
 
-// Get specific employee
-app.get('/api/employees/:id', async (req, res) => {
+// Get all coworkers for a user
+app.get('/api/users/:username/coworkers', async (req, res) => {
 	try {
-		const results = await db.query("SELECT * FROM employees WHERE id = $1", [req.params.id]);
+		if (req.session.user.username != req.params.username) {
+			res.status(401).json({message: "Unauthorized"});
+			return;
+		}
+
+		const results = await db.query("SELECT * FROM coworkers WHERE username = $1", [req.params.username]);
+
 		res.status(200).json({
 			status: "success",
-			results: results.rows.length,
 			data: {
-				employee: results.rows
+				coworkers: results.rows
 			},
-			message: `Got employee #${req.params.id}`});
-	} catch (err) {
-		console.error(err.message);
-	}
-});
-
-// Get all employees
-app.get('/api/employees/', async (req, res) => {
-	try {
-		const results = await db.query('SELECT * FROM employees');
-		res.status(200).json({
-		status: "success",
-		results: results.rows.length,
-		data: {
-			employees: results.rows
-		},
-		message: "Got All Employees"
+			message: `Got coworkers for ${req.params.username}`
 		});
 	} catch (err) {
 		res.status(500).json({message: err.message})
 	}
 });
 
-// Create new employee
-app.post('/api/employees/', async (req, res) => {
+// Add another user as a coworker
+app.put('/api/users/:username/coworkers', async (req, res) => {
 	try {
-		const results = await db.query('INSERT INTO employees (address, name, email, phone, salary, vacation_days) values ($1, $2, $3, $4, $5, $6) returning *', 
-		[req.body.address, req.body.username, req.body.email, req.body.phone, req.body.salary, req.body.vacation_days]);
+		if (req.session.user.username != req.params.username) {
+			res.status(401).json({message: "Unauthorized"});
+			return;
+		}
+
+		// Checks if user is adding themselves
+		if (req.params.username == req.body.coworker) {
+			res.status(400).json({message: "Cannot add yourself as a coworker"});
+			return;
+		}
+
+		// Checks if the user has already added the coworker
+		let results = await db.query("SELECT * FROM coworkers WHERE username = $1 AND coworker = $2", [req.params.username, req.body.coworker]);
+		if (results.rows.length > 0) {
+			res.status(409).json({message: "Coworker already added"});
+			return;
+		}
+
+		// Checks if the coworker exists as a user
+		results = await db.query("SELECT * FROM users WHERE username = $1", [req.body.coworker]);
+		if (results.rows.length == 0) {
+			res.status(404).json({message: "User not found"});
+			return;
+		}
+
+		// Inserts the connection into the db
+		results = await db.query("INSERT INTO coworkers (username, coworker) VALUES ($1, $2), ($2, $1) returning *",
+		[req.params.username, req.body.coworker]);
 
 		res.status(201).json({
 			status: "success",
-			results: results.length,
 			data: {
-			employees: results.rows.username
+				coworker: results.rows[0]
 			},
-			message: "Got All Employees"
+			message: `Added coworker for ${req.params.username}`
 		});
-		} catch (err) {
-			res.status(500).json({message: err.message})
-		}
+	} catch (err) {
+		res.status(500).json({message: err.message})
+	}
 });
 
-// Update employee
-app.put('/api/employees/:id', async (req, res) => {
+// Get all users
+app.get('/api/users/', async (req, res) => {
 	try {
-		const results = await db.query("UPDATE employees SET address = $1, name = $2, email = $3, phone = $4, salary = $5, vacation_days = $6 WHERE id = $7 returning *", 
-		[req.body.address, req.body.name, req.body.email, req.body.phone, req.body.salary, req.body.vacation_days, req.params.id]);
-		console.log(results);
+		const results = await db.query('SELECT * FROM users');
+		res.status(200).json({
+		status: "success",
+		results: results.rows.length,
+		data: {
+			users: results.rows
+		},
+		message: "Got All Users"
+		});
+	} catch (err) {
+		res.status(500).json({message: err.message})
+	}
+});
+
+// Get specific user
+app.get('/api/users/:username', async (req, res) => {
+	try {
+		const results = await db.query("SELECT * FROM users WHERE username = $1", [req.params.username]);
+		if (results.rows.length > 0) {
+			res.status(200).json({
+				status: "success",
+				data: {
+					employee: results.rows[0]
+				},
+				message: `Got ${req.params.id}`});
+		} else {
+			res.status(404).json({message: `${req.params.id} not found`});
+		}
+	} catch (err) {
+		res.status(500).json({message: err.message})
+	}
+});
+
+// Update user
+app.put('/api/users/:username', async (req, res) => {
+	try {
+		if (req.session.user.username != req.body.username) {
+			res.status(401).json({message: "Unauthorized"});
+			return;
+		}
+
+		const results = await db.query("UPDATE users SET email = $2 WHERE username = $1", 
+		[req.params.username, req.body.email]);
 	
 		res.status(200).json({
 			status: "success",
 			data: {
-				employee: results.rows
+				user: results.rows
 			},
-			message: `Updated employee #${req.params.id}`
+			message: `Updated user #${req.body.username}`
 		});
 	} catch (err) {
 		res.status(400).json({message: err.message})
 	}
 });
 
-// Delete employee
-app.delete('/api/employees/:id', async (req, res) => {
+// Delete user
+app.delete('/api/users/:username', async (req, res) => {
 	try {
-		const results = await db.query("DELETE FROM employees WHERE id = $1 returning *", [req.params.id]);
+		if (req.session.user.username != req.params.username) {
+			res.status(401).json({message: "Unauthorized"});
+			return;
+		}
+
+		const results = await db.query("DELETE FROM users WHERE username = $1 returning *", [req.params.username]);
+
+		res.status(204).json({
+			status: "success",
+		});
+	} catch (err) {
+		res.status(500).json({message: err.message})
+	}
+});
+
+// Add a user's event to the db
+app.post('/api/users/:username/events', async (req, res) => {
+	try {
+		if (req.session.user.username != req.params.username) {
+			res.status(401).json({message: "Unauthorized"});
+			return;
+		}
+
+		// Add event to db for requestor
+		let results = await db.query("INSERT INTO events (username, title, start, end) values ($1, $2, $3, $4) returning *",
+		[req.params.username, req.body.title, req.body.start, req.body.end]);
+
+		// Add event to db for coworker
+		results = await db.query("INSERT INTO events (username, title, start, end) values ($1, $2, $3, $4) returning *",
+		[req.body.coworker, req.body.title, req.body.start, req.body.end]);
+
+		res.status(201).json({
+			status: "success",
+			data: {
+				event: results.rows[0]
+			},
+			message: `Added event for ${req.params.username}`
+		});
+	} catch (err) {
+		res.status(500).json({message: err.message})
+	}
+});
+
+// Get all events for a user
+app.get('/api/users/:username/events', async (req, res) => {
+	try {
+		if (req.session.user.username != req.params.username) {
+			res.status(401).json({message: "Unauthorized"});
+			return;
+		}
+
+		const results = await db.query("SELECT * FROM events WHERE username = $1", [req.params.username]);
+
+		res.status(200).json({
+			status: "success",
+			data: {
+				events: results.rows
+			},
+			message: `Got events for ${req.params.username}`
+		});
+	} catch (err) {
+		res.status(500).json({message: err.message})
+	}
+});
+
+// Get a specific event for a user
+app.get('/api/users/:username/events/:title', async (req, res) => {
+	try {
+		if (req.session.user.username != req.params.username) {
+			res.status(401).json({message: "Unauthorized"});
+			return;
+		}
+
+		const results = await db.query("SELECT * FROM events WHERE username = $1 AND title = $2", [req.params.username, req.params.title]);
+		if (results.rows.length > 0) {
+			res.status(200).json({
+				status: "success",
+				data: {
+					event: results.rows[0]
+				},
+				message: `Got event #${req.params.title}`});
+		} else {
+			res.status(404).json({message: `${req.params.title} not found`});
+		}
+	} catch (err) {
+		res.status(500).json({message: err.message})
+	}
+});
+
+// Update a specific event for a user
+app.put('/api/users/:username/events/:title', async (req, res) => {
+	try {
+		if (req.session.user.username != req.params.username) {
+			res.status(401).json({message: "Unauthorized"});
+			return;
+		}
+
+		const results = await db.query("UPDATE events SET title = $2, start = $3, end = $4 WHERE username = $1 AND title = $2 returning *",
+		[req.params.username, req.body.title, req.body.start, req.body.end]);
+
+		res.status(200).json({
+			status: "success",
+			data: {
+				event: results.rows[0]
+			},
+			message: `Updated event #${req.params.id}`
+		});
+	} catch (err) {
+		res.status(500).json({message: err.message})
+	}
+});
+
+// Delete a specific event for a user
+app.delete('/api/users/:username/events/:title', async (req, res) => {
+	try {
+		if (req.session.user.username != req.params.username) {
+			res.status(401).json({message: "Unauthorized"});
+			return;
+		}
+
+		const results = await db.query("DELETE FROM events WHERE username = $1 AND title = $2 returning *", [req.params.username, req.params.title]);
 
 		res.status(204).json({
 			status: "success",

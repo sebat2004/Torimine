@@ -1,41 +1,34 @@
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { AiOutlineLoading } from "react-icons/ai"
+import { useAuth } from "../hooks/useAuth"
 
 const LoginForm = () => {
-    const openInNewTab = (url: string) => {
-        const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
-        if (newWindow) newWindow.opener = null
-        }
-
+    const { login } = useAuth()
+    
     const [inputValues, setInputValues] = useState<{ [x: string]: string }>()
     const [errorMessage, setErrorMessage] = useState<any>()
+    const navigate = useNavigate()
 
     const handleFormSubmit = async (e: React.MouseEvent<HTMLElement>) => {
         setErrorMessage(<AiOutlineLoading className="animate-spin text-3xl" />)
 
         e.preventDefault()
         const data = {
-        username: inputValues?.username,
-        password: inputValues?.password,
+            username: inputValues?.username,
+            password: inputValues?.password,
         }
-        // sends a request to the localhost:3000 server to fetch the response from the login api call for the user
-        const response = await fetch('http://localhost:3000/api/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-            })
-            .then(res => res.json())
-            .then(data => {
-                return data
-            });
-        if (response.status === 'success') {
-            setTimeout(() => { setErrorMessage(<h1 className="text-green-500">{response.message}</h1>) }, 1700)
-            setTimeout(() => { window.location.replace("http://localhost:5173/workspace") }, 4000)
+        
+        if (!data.username || !data.password) {
+            setErrorMessage(<h1 className="text-red-500">Please fill in all fields.</h1>)
         } else {
-                setTimeout(() => { setErrorMessage(<h1 className="text-red-500">{response.message}</h1>) }, 1500)
+            login(data.username, data.password).then((res) => {
+                if (res) {
+                    navigate("/workspace")
+                } else {
+                    setErrorMessage(<h1 className="text-red-500">Invalid username or password.</h1>)
+                }
+            });
         }
     }
 
@@ -43,7 +36,7 @@ const LoginForm = () => {
         const { name, value } = e.currentTarget
         setInputValues(prevState => ({ ...prevState, [name]: value }))
     }
-
+    
     return (
         <>
             <div className="flex flex-col items-center justify-center h-[90vh]">
@@ -61,7 +54,7 @@ const LoginForm = () => {
                         <div className="flex flex-col self-center items-center pt-[13px] gap-5">
                             <Link to="/login" className="text-md flex gap-[5px]">
                                 <h1 className="cursor-normal">Forgot Password?</h1>
-                                <h1 className="text-neutral font-bold" onClick={() => openInNewTab("http://localhost:5173/")}>Click here</h1>
+                                <h1 className="text-neutral font-bold" onClick={() => navigate("/")}>Click here</h1>
                             </Link>
                             <h1 className="shadow-lg btn-md btn btn-neutral w-[400px]" onClick={handleFormSubmit}>Login</h1>
                             {errorMessage}
@@ -73,4 +66,4 @@ const LoginForm = () => {
     )
 }
 
-export default LoginForm
+export default LoginForm;
